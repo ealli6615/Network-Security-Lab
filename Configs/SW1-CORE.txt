@@ -1,0 +1,235 @@
+show run
+Building configuration...
+
+Current configuration : 4575 bytes
+!
+version 12.2(37)SE1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption
+!
+hostname SW1-CORE
+!
+!
+no profinet
+enable secret 5 $1$mERr$VKBYhX.QwhQITVHkxRjcj/
+!
+!
+ip dhcp excluded-address 192.168.10.1 192.168.10.10
+ip dhcp excluded-address 192.168.20.1 192.168.20.10
+ip dhcp excluded-address 192.168.30.1 192.168.30.10
+ip dhcp excluded-address 192.168.40.1 192.168.40.10
+!
+ip dhcp pool HR_POOL
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.1
+dns-server 8.8.8.8
+ip dhcp pool IT_POOL
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.1
+dns-server 8.8.8.8
+ip dhcp pool SALES_POOL
+network 192.168.30.0 255.255.255.0
+default-router 192.168.30.1
+dns-server 8.8.8.8
+ip dhcp pool GUEST_POOL
+network 192.168.40.0 255.255.255.0
+default-router 192.168.40.1
+dns-server 8.8.8.8
+!
+!
+ip routing
+!
+!
+!
+!
+username admin secret 5 $1$mERr$mUkBiSxUCNDqanrFGNfOA.
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip ssh version 2
+no ip domain-lookup
+ip domain-name techcorp.local
+!
+!
+spanning-tree mode pvst
+spanning-tree vlan 1-50,99 priority 24576
+!
+!
+!
+!
+!
+!
+interface Port-channel1
+description EtherChannel to SW-2
+switchport trunk allowed vlan 10,20,30,40,50,99
+switchport trunk encapsulation dot1q
+switchport mode trunk
+!
+interface Port-channel2
+description EtherChannel to SW-3
+switchport trunk allowed vlan 10,20,30,40,50,99
+switchport trunk encapsulation dot1q
+switchport mode trunk
+!
+interface FastEthernet0/1
+description Trunk to SW-2
+switchport trunk allowed vlan 10,20,30,40,50,99
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-group 1 mode active
+!
+interface FastEthernet0/2
+description Trunk to SW-2
+switchport trunk allowed vlan 10,20,30,40,50,99
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-group 1 mode active
+!
+interface FastEthernet0/3
+description Trunk to SW-3
+switchport trunk allowed vlan 10,20,30,40,50,99
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-group 2 mode active
+!
+interface FastEthernet0/4
+description Trunk to SW-3
+switchport trunk allowed vlan 10,20,30,40,50,99
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-group 2 mode active
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+!
+interface FastEthernet0/8
+!
+interface FastEthernet0/9
+!
+interface FastEthernet0/10
+spanning-tree portfast
+spanning-tree bpduguard enable
+!
+interface FastEthernet0/11
+spanning-tree portfast
+spanning-tree bpduguard enable
+!
+interface FastEthernet0/12
+!
+interface FastEthernet0/13
+!
+interface FastEthernet0/14
+!
+interface FastEthernet0/15
+!
+interface FastEthernet0/16
+!
+interface FastEthernet0/17
+!
+interface FastEthernet0/18
+!
+interface FastEthernet0/19
+!
+interface FastEthernet0/20
+description SERVERS-SR1
+switchport access vlan 50
+switchport mode access
+!
+interface FastEthernet0/21
+!
+interface FastEthernet0/22
+!
+interface FastEthernet0/23
+!
+interface FastEthernet0/24
+no switchport
+ip address 192.168.0.2 255.255.255.252
+duplex auto
+speed auto
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+no ip address
+shutdown
+!
+interface Vlan10
+description HR gateway
+mac-address 0001.c749.3b01
+ip address 192.168.10.1 255.255.255.0
+!
+interface Vlan20
+description IT gateway
+mac-address 0001.c749.3b02
+ip address 192.168.20.1 255.255.255.0
+!
+interface Vlan30
+description Sales gateway
+mac-address 0001.c749.3b03
+ip address 192.168.30.1 255.255.255.0
+!
+interface Vlan40
+description Guest gateway
+mac-address 0001.c749.3b04
+ip address 192.168.40.1 255.255.255.0
+!
+interface Vlan50
+description Servers Gateway
+mac-address 0001.c749.3b06
+ip address 192.168.50.1 255.255.255.0
+!
+interface Vlan99
+description Management Gateway
+mac-address 0001.c749.3b07
+ip address 192.168.99.11 255.255.255.0
+!
+ip default-gateway 192.168.99.1
+ip classless
+ip route 0.0.0.0 0.0.0.0 192.168.0.1
+!
+ip flow-export version 9
+!
+!
+ip access-list extended HR_TO_SALES_DENY
+deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+permit ip any any
+ip access-list extended SALES_TO_HR_DENY
+deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
+permit ip any any
+ip access-list extended GUEST_INTERNET_ONLY
+deny ip 192.168.40.0 0.0.0.255 192.168.10.0 0.0.0.255
+deny ip 192.168.40.0 0.0.0.255 192.168.20.0 0.0.0.255
+deny ip 192.168.40.0 0.0.0.255 192.168.30.0 0.0.0.255
+deny ip 192.168.40.0 0.0.0.255 192.168.50.0 0.0.0.255
+permit ip any any
+!
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+login local
+transport input ssh
+!
+!
+!
+!
+end

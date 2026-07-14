@@ -1,0 +1,79 @@
+ASA-FW#show running-config
+ASA Version 8.4(2)
+!
+hostname ASA-FW
+domain-name techcorp.local
+enable password TRTTwxKps280Wqym encrypted
+names
+!
+interface Ethernet0/0
+!
+interface Ethernet0/1
+!
+interface Ethernet0/2
+!
+interface Ethernet0/3
+!
+interface Ethernet0/4
+!
+interface Ethernet0/5
+!
+interface Ethernet0/6
+!
+interface Ethernet0/7
+switchport access vlan 2
+!
+interface Vlan1
+nameif inside
+security-level 100
+ip address 10.0.0.1 255.255.255.252
+!
+interface Vlan2
+nameif outside
+security-level 0
+ip address 203.0.113.2 255.255.255.252
+!
+object network INSIDE_NET
+subnet 192.168.0.0 255.255.0.0
+nat (inside,outside) dynamic interface
+!
+route outside 0.0.0.0 0.0.0.0 203.0.113.1 1
+route inside 192.168.0.0 255.255.0.0 10.0.0.2 1
+!
+access-list OUTSIDE_IN extended deny ip any any
+access-list OUTSIDE_IN extended permit icmp any any
+access-list INSIDE_OUT extended permit icmp 192.168.0.0 255.255.0.0 any
+access-list INSIDE_OUT extended permit tcp 192.168.0.0 255.255.0.0 any eq www
+access-list INSIDE_OUT extended permit tcp 192.168.0.0 255.255.0.0 any eq 443
+access-list INSIDE_OUT extended permit tcp 192.168.0.0 255.255.0.0 any eq domain
+access-list INSIDE_OUT extended permit udp 192.168.0.0 255.255.0.0 any eq domain
+access-list INSIDE_OUT extended deny ip any any
+access-list INSIDE_OUT extended permit icmp any any
+access-list OUTSIDE_NEW extended permit icmp any any
+access-list OUTSIDE_NEW extended deny ip any any
+access-list INSIDE_NEW extended permit icmp any any
+access-list INSIDE_NEW extended permit tcp 192.168.0.0 255.255.0.0 any eq www
+access-list INSIDE_NEW extended permit tcp 192.168.0.0 255.255.0.0 any eq 443
+access-list INSIDE_NEW extended permit tcp 192.168.0.0 255.255.0.0 any eq domain
+access-list INSIDE_NEW extended permit udp 192.168.0.0 255.255.0.0 any eq domain
+access-list INSIDE_NEW extended deny ip any any
+!
+!
+access-group OUTSIDE_NEW in interface outside
+access-group INSIDE_NEW in interface inside
+!
+!
+!
+!
+!
+telnet timeout 5
+ssh timeout 5
+!
+dhcpd auto_config outside
+!
+dhcpd enable inside
+!
+!
+!
+!
+!
